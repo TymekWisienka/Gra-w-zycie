@@ -1,16 +1,37 @@
 from random import randint
 import os, time, pygame
 
-n = 200
+
+
+n = 100
+ksztalt = ["010","001","111"]
 
 plansza = []
 
+#PLANSZA LOSOWA
+'''
 for i in range(0, n):
     plansza.append([])
     for j in range(0, n):
         plansza[i].append(randint(0, 1))
+'''
+
+#PLANSZA PUSTA
+for i in range(0, n):
+    plansza.append([])
+    for j in range(0, n):
+        plansza[i].append(0)
 
 #print(*plansza, sep="\n")
+
+def dodaj_ksztalt(ksztalt,x,y):
+    global plansza
+    for i, wiersz in enumerate(ksztalt):
+        for j, komorka in enumerate(wiersz):
+            plansza[x+i][y+j] = int(komorka)
+
+    #print(plansza)
+dodaj_ksztalt(ksztalt, 2, 2)
 
 def sprawdzanie(x, y):
     zywe = 0
@@ -84,12 +105,111 @@ def rysowanie():
 
     pygame.display.flip()
 
+'''
+
 def gra():
-    while True:
+    global plansza
+    run = True
+    while run:
+
         clock.tick(60)
         fps = clock.get_fps()
-        print(fps)
+
         nowa_generacja()
+
+
+        for evt in pygame.event.get():
+            if evt.type == pygame.QUIT:
+                run = False
+            if evt.type == pygame.MOUSEBUTTONDOWN:
+                if evt.button == 3:
+                    mysz = pygame.mouse.get_pos()
+                    #print(mysz)
+                    dodaj_ksztalt(ksztalt, mysz[1]//rozmiar_komorki - 1, mysz[0]//rozmiar_komorki - 1)
+                if evt.button == 1:
+                    mysz = pygame.mouse.get_pos()
+                    #print(mysz)
+                    dodaj_ksztalt([i[::-1] for i in ksztalt[::-1]], mysz[1] // rozmiar_komorki - 1, mysz[0] // rozmiar_komorki - 1)
+
         rysowanie()
 
-gra()
+
+
+def gra_reczna():
+    global plansza
+    run = True
+    clock.tick(60)
+    fps = clock.get_fps()
+
+
+    while run:
+        for evt in pygame.event.get():
+            if evt.type == pygame.QUIT:
+                run = False
+            if evt.type == pygame.MOUSEBUTTONDOWN:
+                if evt.button == 4:
+                    nowa_generacja()
+                    rysowanie()
+                if evt.button == 3:
+                    mysz = pygame.mouse.get_pos()
+                    # print(mysz)
+                    dodaj_ksztalt(ksztalt, mysz[1] // rozmiar_komorki - 1, mysz[0] // rozmiar_komorki - 1)
+                if evt.button == 1:
+                    mysz = pygame.mouse.get_pos()
+                    # print(mysz)
+                    dodaj_ksztalt([i[::-1] for i in ksztalt[::-1]], mysz[1] // rozmiar_komorki - 1,
+                                  mysz[0] // rozmiar_komorki - 1)
+
+    rysowanie()
+
+run = True
+while run:
+    
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_SPACE]:
+        gra()
+    else:
+        gra_reczna()
+
+
+'''
+
+run = True
+auto = False  # czy automatyczna gra
+
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+        # Dodawanie kształtów myszką
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mysz = pygame.mouse.get_pos()
+            x = mysz[1] // rozmiar_komorki - 1
+            y = mysz[0] // rozmiar_komorki - 1
+            if event.button == 3:
+                dodaj_ksztalt(ksztalt, x, y)
+            if event.button == 1:
+                dodaj_ksztalt([i[::-1] for i in ksztalt[::-1]], x, y)
+
+            #DODAĆ WIĘCEJ KRZTAŁTÓW POD RÓŻNYMI KLAWISZAMI
+
+            # Scroll w trybie ręcznym
+            if event.button == 4 and not auto:
+                nowa_generacja()
+
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                auto = not auto
+
+    clock.tick(60)
+
+    if auto:
+        nowa_generacja()
+
+    rysowanie()
